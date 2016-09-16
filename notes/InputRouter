@@ -1,0 +1,37 @@
+class InputRouter
+{
+	private Map<String, List<Entity> mapping
+	
+	void subscribe(String event, Entity e)
+	{
+		mapping.get(event).add(e);
+	}
+	// Keyboard.KEY_UP -> P1UP
+	
+	void update()
+	{
+		while keyboard.hasNext()
+		{
+			String event = keyboardMap.get(keyboard.getEventKey())
+			for (entity e : mapping.get(event) 
+			{
+				e.postEvent(event)
+			}
+		}
+	}
+}
+
+class Hero
+{
+	public Hero()
+	{
+		ih.subscribe(p1up,this);
+	}
+	public void postEvent(String a)
+	{
+		switch(a)
+		{
+			case "p1up": // handle up event
+		}
+	}
+}

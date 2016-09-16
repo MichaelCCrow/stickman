@@ -1,0 +1,42 @@
+// make grid
+x = Display.getWidth() 
+y = Display.getHeight() 
+grid[x][y] = lastCell
+
+// A* Algorithm
+closed // Set
+open = { START }
+cost: cell -> number
+initialize cost[] -> ∞
+
+hueristic: array of estimates
+
+while (open is not empty ) 
+{
+	current = open item with the lowest cost + hueristic
+											   // straight line distance to goal
+	if current == goal
+		yay! -> reconstruct path
+	
+	remove current from the open set
+	ad current to closed
+	
+	for each n in neighbors[current]
+		next if n is in closed
+		tmpcost = cost[current] + 1 // tmpcost is how many cells that have been through, then adding one to it
+		// cost of getting from current to n
+		
+		if ( tmpcost < cost[n] )
+			prev[n] = current
+			cost[n] = tmpcost
+			add n to open
+}
+
+reconstruct path ( start, end )
+	List path; // or stack
+	path.add(end)
+	while (end != start)
+	{
+		end = prev[end]
+		path.add(end);
+	}

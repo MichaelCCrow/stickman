@@ -1,0 +1,549 @@
+import org.lwjgl.opengl.GL11;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import org.lwjgl.opengl.Display;
+
+public class World {
+
+    private Entity[][] grid;
+    private int countw;
+    private int counth;
+    private int rx, ry;
+
+    private boolean drawEdges;
+    
+    private ArrayList<Cell> open = new ArrayList<>();
+    private ArrayList<Cell> closed;
+    private Cell current;
+    
+
+    public static class Cell implements Comparable<Cell>
+    {
+        private int row;
+        private int col;
+        private World world;
+        
+        public Cell(int row, int col, World w)
+        {
+            this.row = row;
+            this.col = col;
+            this.world = w;
+        }
+        
+
+        public int getRow() { return row; }
+        public int getCol() { return col; }
+        
+        public String toString() 
+        {
+        	return "Cell[row="+row+"; col="+col+"]";
+        }
+        
+        public int compareTo(Cell other) 
+        {
+        	if (row < other.row) return -1;
+        	if (row > other.row) return 1;
+        	if (col < other.col) return -1;
+        	if (col > other.col) return 1;
+        	return 0;
+        }
+        {
+//        private Cell prev, next;
+//        private Cell top = new Cell(row-1, col, world);
+//        private Cell bottom = new Cell(row+1, col, world);
+//        private Cell left = new Cell(row, col-1, world);
+//        private Cell right = new Cell(row, col+1, world);            		
+//        public Cell[] neighbors = { top, bottom, left, right };
+//        public Cell(int row, int col, Cell prev, Cell next, World w) {
+//        	this.row = row;
+//        	this.col = col;
+//        	this.world = w;
+//        	this.prev = prev;
+//        	this.next = next;
+//        }
+//        public Cell getTop() { return top; }
+//        public Cell getBottom() { return bottom; }
+//        public Cell getLeft() { return left; }
+//        public Cell getRight() { return right; }
+//        public Cell getNeighbor(String n) { 
+//        	switch (n) {
+//        		case "t": 		return top;
+//        		case"top":		return top;
+//        		case "b":		return bottom;
+//        		case "bottom": 	return bottom;
+//        		case "l":		return left;
+//        		case "left": 	return left;
+//        		case "r": 		return right;
+//        		case "right": 	return right;
+//        	}
+//        	return null; 
+//        }
+//        public Cell getPrev() { return prev; }
+//        public Cell getNext() { return next; }
+//        public void setPrev(Cell p) { prev = p; }
+//        public void setNext(Cell n) { next = n; }
+        }
+    }
+
+    // private Cell header, trailer;
+    // private int size = 0;
+
+    public World(int countw, int counth)
+    {
+        this.countw = countw;
+        this.counth = counth;
+        grid = new Entity[counth][countw];
+        drawEdges = false;
+        
+        // header = new Cell(0, 0, null, null, this);
+        // trailer = new Cell(0, 0, header, null, this);
+        // header.setNext(trailer);   
+    }
+    
+    {
+//    public boolean isEmpty() { return size == 0; }
+//    public Cell first() {
+//    	if (isEmpty()) return null;
+//    	return header.getNext();
+//    }
+//    public void addFirst(Cell c) { addBetween(c, header, header.getNext()); }
+//    public void addLast(Cell c) { addBetween(c, trailer.getPrev(), trailer); }
+//    public Cell removeFirst() {
+//    	if (isEmpty()) return null;
+//    	return remove(header.getNext());
+//    }
+//    public Cell removeLast() {
+//    	if (isEmpty()) return null;
+//    	return remove(trailer.getPrev());
+//    }
+//    private void addBetween(Cell current, Cell prev, Cell next) {
+//    	Cell newest = new Cell(current.getRow(), current.getCol(), 
+//    			prev, next, this);
+//    	prev.setNext(newest);
+//    	next.setPrev(newest);
+//    	size++;
+//    }
+//    private Cell remove(Cell c) {
+//    	Cell predecessor = c.getPrev();
+//    	Cell successor = c.getNext();
+//    	predecessor.setNext(successor);
+//    	successor.setPrev(predecessor);
+//    	size--;
+//    	return c;
+//    }
+    }
+
+    public void clear()
+    {
+        for (int c=0; c<countw; c++)
+        {
+            for (int r=0; r<counth; r++)
+            {
+                grid[r][c]=null;
+            }
+        }
+    }
+
+    public void set(Cell cell, Entity e)
+    {
+    	int r = cell.getRow();
+    	int c = cell.getCol();
+        if (r >=0 && r < counth && c >= 0 && c < countw)
+        {
+            grid[r][c] = e;
+        }
+    }
+//    public void set(int r, int c, Entity e)
+//    {
+//    	if (r >=0 && r < counth && c >= 0 && c < countw)
+//    	{
+//    		grid[r][c] = e;
+//    	}
+//    }
+
+    public void setDrawEdges(boolean flag)
+    {
+        drawEdges = flag;
+    }
+
+    public Cell cellAtCoord(float x, float y)
+    {
+        float dx = Display.getWidth() / countw;
+        float dy = Display.getHeight() / counth;
+
+        int col = (int) (x/dx);
+        int row = (int) (y/dy);
+
+        return new Cell(row,col,this);
+    }
+
+    public void update(float delta) throws IOException
+    {
+        for (int c=0; c<countw; c++)
+        {
+            for (int r=0; r<counth; r++)
+            {
+                if (grid[r][c] != null)
+                {
+                    grid[r][c].update(delta);
+                }
+            }
+        }
+    }
+    
+    
+    
+    
+    
+    
+// ---------------------------------- //    
+    public Cell cellAt(int row, int col) {
+    	return new Cell(row, col, this);
+    }
+    
+    public Cell randomizedCell() 
+    {
+    	Random rand = new Random();
+    	int x = rand.nextInt(Display.getWidth());
+    	int y = rand.nextInt(Display.getHeight());
+    	Cell randomCell = cellAtCoord(x,y);
+    	return randomCell;
+    }
+    
+    
+    public void closeCell(Cell e) {
+    	closed.add(e);
+    }
+    public void removeClosedCell(Cell e) {
+    	closed.remove(e);
+    }
+    public ArrayList<Cell> getClosedCells() {
+    	return closed;
+//    	for (Cell c : closed) {
+//    		return c;
+//    	}
+//    	return null;
+    }
+    
+    public void openCell(Cell e) {
+    	open.add(e);
+    }
+    public void removeOpenCell(Cell e) {
+    	open.remove(e);
+    }
+    public ArrayList<Cell> getOpenCells() {
+    	return open;
+//    	for (Cell c : open) {
+//    		return c;
+//    	}
+//    	return null;
+    }
+    
+    public boolean cellIsOpen(float x, float y, Cell ce)
+    {
+    	for (Cell c : closed) {
+    		if (cellAtCoord(x,y) == c) {
+    			return false;
+    		}
+    	}
+    	return closed.contains(ce);
+//    	return true;
+    		
+    }
+// ------------------------------------ //
+    
+    
+    
+
+    public void draw()
+    {
+        float dx = Display.getWidth() / countw;
+        float dy = Display.getHeight() / counth;
+
+        for (int c=0; c<countw; c++)
+        {
+            for (int r=0; r<counth; r++)
+            {
+                if (grid[r][c] != null)
+                {
+                    grid[r][c].drawAt(c*dx, r*dy, dx, dy);
+                }
+
+                if (drawEdges)
+                {
+                    float x = c*dx;
+                    float y = r*dy;
+
+                    GL11.glColor3f(1, 1, 1);
+                    GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
+                    GL11.glBegin(GL11.GL_QUADS);
+
+                    GL11.glVertex2f(x,y);
+                    GL11.glVertex2f(x+dx,y);
+                    GL11.glVertex2f(x+dx,y+dy);
+                    GL11.glVertex2f(x,y+dy);
+
+                    GL11.glEnd();
+                    GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);                    
+                }
+            }
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    public List<Cell> findPath(Cell start, Cell end)
+    {
+        System.out.println("looking for path from " + start + " to " + end);
+
+        class Data
+        {
+            public double cost;
+            public double est;
+            public Cell prev;
+
+            public Data(double cost, double est, Cell prev)
+            {
+                this.cost = cost;
+                this.est  = est;
+                this.prev = prev;
+            }
+
+            public double estimate()
+            {
+                return cost + est;
+            }
+        }
+
+        TreeMap<Cell, Data> costs = new TreeMap<>();
+        TreeSet<Cell> open = new TreeSet<Cell>();
+        TreeSet<Cell> closed = new TreeSet<Cell>();
+
+        costs.put(start, new Data(0, 0, null));
+        open.add(start);
+//        costs.get(end).prev = null;
+        
+        double min = 999999999999.0;
+
+        while (open.size() > 0) {
+        	
+        	Cell current = null;
+        	
+        	List<Cell> neighbors;
+        	
+        	for (Cell c: open) {
+        		
+        		neighbors = getNeighbors(c);
+        	}
+        	
+        	for (Cell n : neighbors) {
+        		
+        		costs.put(n, new Data(costs.get(current).cost, 0, current));
+        	}
+        		
+        		if (current == null) {
+        			current = c;
+        		}
+        	
+        	
+        		// double accumulatedCost = costs.get(c).cost;        		
+        		 current = open.first();
+        		
+        		boolean b = false;
+        		min = Math.min(costs.get(c).cost, costs.get(current).cost);
+        		if (min == costs.get(c).cost) { b = true; }
+        		else { b = false; }
+        		
+        		if (b) {
+        			current = c;
+        			costs.put(current, new Data(costs.get(c).cost, 0, costs.get(c).prev));
+        		}
+        		
+        		if (current.compareTo(end) == 0) { break; }
+        		
+        		
+        		List<Cell> visited = new LinkedList<Cell>();
+        		
+        		// double maxDepth;
+        		// double costEstimate;
+        		
+        		for (Cell n : neighbors) {
+        			
+//        			int curx = c.getCol(); 			int cury = c.getRow();
+//        			int xpos = n.getCol() + curx;	int ypos = n.getRow() + cury;
+//        			double costEstimate = costs.get(n).estimate();
+        			// double nextStepCost = costs.get(c).cost + costs.get(n).estimate();
+//        			double nextStepCost = costs.get(c).cost + costs.get(n).cost;
+        			// double nextStepCost = costs.get(c).cost + getMovementCost(curx, cury, xpos, ypos);
+        			// costEstimate = costs.get(c).cost + getMovementCost(curx, cury, xpos, ypos);
+        			
+        			if (closed.contains(n)) break;
+        			
+        			// visited.add(n);
+        			double tmpcost = costs.get(current).cost + 1;
+        			costs.put(n, new Data(costs.get(c).cost+1, 0, c));
+        			
+        			if (tmpcost <= costs.get(n).cost) {
+        				// current = n;
+        				
+        				costs.put(n, new Data(tmpcost, costs.get(n).estimate(), current));
+        				
+        				if (open.contains(n)) 	{ open.remove(n); }
+        				
+        				if (closed.contains(n))	{ closed.remove(n); } // if (current.compareTo(end) == 0) { current = n; }
+        					
+        				open.add(n);
+        				// visited.add(c);
+        				// current = n;        				
+        			}
+        			
+//        			if ( !open.contains(n) && !closed.contains(n) ) {
+        				
+        				// maxDepth = Math.max(maxDepth, costs.get(c).cost);
+        				// costs.get(n).est = costs.get(n).estimate();
+        				
+        				// costs.get(n).cost = nextStepCost;
+        				// costs.get(n).est = getMovementCost(xpos, ypos, end.getCol(), end.getRow());
+        				// double tmpcost = getMovementCost(xpos, ypos, end.getCol(), end.getRow());
+//        				double tempcost = costs.get(end).estimate();
+//        				costs.put(n, new Data(tmpcost, tempcost, current));
+        				// min = Math.min(min, costs.get(current).cost);
+//        				open.add(n);
+        				// current = c;
+//        			}	
+        			
+        			// if (costs.get(c).cost < costs.get(current).cost) { min = costEstimate; current = c;     }
+        		}
+
+        		visited.add(current);
+        		
+        	} // end for loop
+        	
+//        	if (costs.get(end).prev == null) { return null; }
+        	
+        	if (current.compareTo(end) == 0) {
+        		System.out.println("found the path");
+        		
+        		List<Cell> path = new LinkedList<Cell>();
+        		
+        		while (current.compareTo(start) != 0) {
+        			path.add(current);
+        			current = costs.get(current).prev;
+        			if (path.contains(current)) break;
+        			this.set(end, new PathBox());
+        		}
+        		path.add(current);
+        		// this.set(end.getRow(), end.getCol(), new PathBox());
+        		return path;
+        	}
+        	else {
+        		open.remove(current);
+        		closed.add(current);
+        		
+        		double costSoFar = costs.get(current).cost;
+        	}
+        	
+        } // end while loop
+        
+        
+        
+        
+
+        return null;
+
+    } // end findPath
+
+
+
+    public List<Cell> getNeighbors(Cell c)
+    {
+        List<Cell> nbrs = new LinkedList<Cell>();
+
+        int row = c.getRow();
+        int col = c.getCol();
+
+
+        if (row - 1 >= 0 && grid[row-1][col] == null)
+            nbrs.add(new Cell(row-1,col,this));
+
+        if (row + 1 < counth && grid [row+1][col] == null)
+            nbrs.add(new Cell(row+1,col,this));
+
+        if (col - 1 >= 0 && grid[row][col-1] == null)
+            nbrs.add(new Cell(row,col-1,this));
+        
+        if (col +1 < countw && grid[row][col+1] == null)
+            nbrs.add(new Cell(row,col+1,this));
+
+
+        return nbrs;
+    }
+
+    
+    public float getMovementCost(int x0, int y0, int x1, int y1) {
+    	
+    	float xdiff = x1 - x0;
+    	float ydiff = y1 - y0;
+    	
+    	float result = (float) (Math.sqrt( (xdiff*xdiff) + (ydiff*ydiff) ));
+    	return result;
+    }
+    
+    
+    
+    
+    
+    
+    
+    Cell current = null;
+        	
+        	for (Cell c : open) {
+        		
+        		current = c;
+        		// if this is the first time running through, and start is the only cell in the open set
+        		if (current == null) {
+        			
+        			current = open.pollFirst(); // should have removed start from the open set and set current in its place
+        			costs.put(current, costs.get(start)); // puts current into the TreeMap	
+        			
+        		} // open set is now empty
+
+        		// costs.get(current).est = min;
+        		closed.add(current);
+        		
+        		for (Cell n : getNeighbors(current)) {
+        			
+        			if (closed.contains(n)) continue;
+        			
+        			double move = current.compareTo(n);
+        			double tmpcost = move + costs.get(current).cost; // the accumulated movement cost from the start, to current, plus moving to n 
+        			
+        			if (tmpcost < costs.get(n).cost) {
+        				
+        				double heuristic = costs.get(n).estimate();
+        				costs.put(n, new Data(tmpcost, heuristic, current));
+        				
+        			}
+        		}
+        	}
+    
+    
+    
+    
+    
+    
+        
+}

@@ -1,0 +1,10 @@
+for (each influence source)
+{
+	flood-fill from its location
+	
+	for (c in cols)
+	for (r in rows)
+	{
+		influence[r][c] = (influence[r][c] + ( r-1c r+1c rc-1 rc+1) * .25)
+	}
+}
